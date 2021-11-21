@@ -17,8 +17,8 @@ if (VSHADER_SOURCE && FSHADER_SOURCE) {
 }
 
 function initVertexBuffers(gl) {
-    let latitudeBands = 50;
-    let longitudeBands = 50;
+    let latitudeBands = 80;
+    let longitudeBands = 80;
     let radius = 2;
 
     let vertexPositionData = [];
@@ -95,10 +95,10 @@ function initVertexBuffers(gl) {
     // Write the normals to their buffer object.
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexNormalBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, normalData, gl.STATIC_DRAW);
-
+    var fsize = vertexPositionData.BYTES_PER_ELEMENT;
     // Assign normal to attrib and enable it.
     let VertexNormal = gl.getAttribLocation(gl.program, 'VertexNormal');
-    gl.vertexAttribPointer(VertexNormal, 3, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(VertexNormal, 3, gl.FLOAT, false, fsize*3, 0);
     gl.enableVertexAttribArray(VertexNormal);
 
     // Pass index buffer data to element array buffer.
@@ -134,8 +134,10 @@ function start() {
 
 
     var viewMatrix = new Matrix4();
-    viewMatrix.setLookAt(0.0, 0.0, 10.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+    viewMatrix.setLookAt(20, 0.0, 10.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
   
+    var modelMatrix = new Matrix4();
+    modelMatrix.setRotate(-30, 0, -15, 1);
     //设置模型矩阵的相关信息
     // var modelMatrix = new Matrix4();
     // modelMatrix.setRotate(0, 0, 5, 1);
@@ -144,10 +146,10 @@ function start() {
   
     //设置透视投影矩阵
     var projMatrix = new Matrix4();
-    projMatrix.setPerspective(Math.PI / 6, 1.0, 0.1, 100.0);
+    projMatrix.setPerspective(20, canvas.width/canvas.height, 1, 1000.0);
   
     //计算出模型视图矩阵 viewMatrix.multiply(modelMatrix)相当于在着色器里面u_ViewMatrix * u_ModelMatrix
-    var modeViewProjectMatrix = projMatrix.multiply(viewMatrix);
+    var modeViewProjectMatrix = projMatrix.multiply(viewMatrix.multiply(modelMatrix));
 
 
 
@@ -164,15 +166,16 @@ function start() {
     let LightPosition = gl.getUniformLocation(gl.program, 'LightPosition');
     gl.uniform4fv(LightPosition, [10.0, 10.0, 10.0, 1.0]);
 
-    // Pass the material diffuse color into the shader.
+    // 材质漫反射颜色参数 传到着色器
     let Kd = gl.getUniformLocation(gl.program, 'Kd');
-    gl.uniform3fv(Kd, [0.9, 0.5, 0.3]);
+    gl.uniform3fv(Kd, [0.0, 0.5, 0.3]);
 
-    // Pass the light diffuse color into the shader.
+    // 光照漫反射参数
     let Ld = gl.getUniformLocation(gl.program, 'Ld');
     gl.uniform3fv(Ld, [1.0, 1.0, 1.0]);
 
     // Clear & draw.
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.drawElements(gl.TRIANGLES, n, gl.UNSIGNED_SHORT, 0);
+    // gl.drawArrays(gl.LINE_STRIP,0, n/6);
 }
