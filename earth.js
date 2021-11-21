@@ -1,72 +1,83 @@
-//顶点着色器
-// var VSHADER_SOURCE = "" +
-// "attribute vec4 aPosition;\n" +
-// "attribute vec4 aNormal;\n" +
-// "attribute vec2 aTexcoord;\n" +
-// "uniform mat4 modelMatrix;\n" +
-// "uniform mat4 vpMatrix;\n" +
-// "varying vec3 fragPos;\n" +
-// "varying vec3 fragNor;\n" +
-// "varying vec2 texcoord;\n" +
-// "void main(){" +
-// "    gl_Position = vpMatrix * modelMatrix * aPosition;\n" +
-// "   fragPos= vec3(modelMatrix * aPosition);\n" +
-// "fragNor = vec3(modelMatrix * aNormal);\n" +
-// "texcoord = aTexcoord;\n" +
-// "}\n";
-
-// // 片段着色器
-// var FSHADER_SOURCE = "" +
-// "precision mediump float;\n" +
-// "uniform vec3 viewPos;\n" +
-// "uniform vec3 lightPos;\n" +
-// "uniform vec3 lightColor;\n" +
-// "uniform vec3 ambientColor;\n" +
-// "uniform sampler2D diffMap;\n" +
-// "varying vec3 fragPos;\n" +
-// "varying vec3 fragNor;\n" +
-// "varying vec2 texcoord;\n" +
-// "void main(){" +
-// "    vec3 normal = normalize(fragNor);\n" +
-// "    vec3 color = texture2D(diffMap, texcoord).rgb;\n" +
-	
-//   // 光线方向
-//   "    vec3 lightDir = normalize(lightPos - fragPos);\n" +
-//   // 光线方向和法向量夹角
-//   "    float cosTheta = max(dot(lightDir, normal), 0.0);\n" +
-//   // 漫反射
-//   "    vec3 diffuse = lightColor * color * cosTheta;\n" +
-
-//   // 环境光
-//   // ...
-//   // 高光
-//   // ...
-
-//   "   gl_FragColor = vec4(ambient + diffuse + specular, 1.0);\n" +
-//   "}\n"
-
-
+// 区别在于如果一个变量表示顶点相关的数据并且需要从javascript代码中获取顶点数据，
+// 需要使用attribute关键字声明该变量，
+// 比如上面代码attribute关键字声明的顶点位置变量apos、顶点颜色变量a_color、
+// 顶点法向量变量a_normal。如果一个变量是非顶点相关的数据并且
+// 需要javascript传递该变量相关的数据，需要使用uniform关键字声明该变量，
+// 比如上面代码通过uniform关键字声明的光源位置变量u_lightPosition、光源颜色变量u_lightColor。
+// uniform变量就像是C语言里面的常量（const ），它不能被shader程序修改。（shader只能用，不能改）
+// attribute变量是只能在vertex shader中使用的变量。
+// varying变量是vertex和fragment shader之间做数据传递用的
 
 //顶点着色器
 var VSHADER_SOURCE = "" +
-"attribute vec4 a_Position;\n" +
-// "attribute vec4 a_Color;\n" +
-"uniform mat4 u_ModelViewMatrix;\n" +
-"varying vec4 v_Color;\n" +
+"attribute vec4 aPosition;\n" +
+"attribute vec4 aNormal;\n" +
+"attribute vec2 aTexcoord;\n" +
+"uniform mat4 modelMatrix;\n" +
+"uniform mat4 vpMatrix;\n" +
+"varying vec3 fragPos;\n" +
+"varying vec3 fragNor;\n" +
+"varying vec2 texcoord;\n" +
 "void main(){" +
-"   gl_Position = u_ModelViewMatrix * a_Position;\n" +
-"   v_Color = vec4(0.2, 0.2, 0.2, 1.0);\n" +
+"    gl_Position = vpMatrix * modelMatrix * aPosition;\n" +
+"   fragPos= vec3(modelMatrix * aPosition);\n" +
+"fragNor = vec3(modelMatrix * aNormal);\n" +
+"texcoord = aTexcoord;\n" +
 "}\n";
 
-//片元着色器
+// 片段着色器
 var FSHADER_SOURCE = "" +
-"#ifdef GL_ES\n" +
 "precision mediump float;\n" +
-"#endif\n" +
-// "varying vec4 v_Color;\n v_Color;" +
+"uniform vec3 viewPos;\n" +
+"uniform vec3 lightPos;\n" +
+"uniform vec3 lightColor;\n" +
+"uniform vec3 ambientColor;\n" +
+"uniform sampler2D diffMap;\n" +
+"varying vec3 fragPos;\n" +
+"varying vec3 fragNor;\n" +
+"varying vec2 texcoord;\n" +
 "void main(){" +
-"   gl_FragColor = vec4(0, 0, 0, 0.1);\n" +
-"}\n";
+"    vec3 normal = normalize(fragNor);\n" +
+"    vec3 color = texture2D(diffMap, texcoord).rgb;\n" +
+	
+  // 光线方向
+  "    vec3 lightDir = normalize(lightPos - fragPos);\n" +
+  // 光线方向和法向量夹角
+  "    float cosTheta = max(dot(lightDir, normal), 0.0);\n" +
+  // 漫反射
+  "    vec3 diffuse = lightColor * color * cosTheta;\n" +
+
+  // 环境光
+  // ...
+  // 高光
+  // ...
+
+  "   gl_FragColor = vec4(ambient + diffuse + specular, 1.0);\n" +
+  "}\n"
+
+
+
+// 可以成功绘制圆
+// //顶点着色器
+// var VSHADER_SOURCE = "" +
+// "attribute vec4 a_Position;\n" +
+// // "attribute vec4 a_Color;\n" +
+// "uniform mat4 u_ModelViewMatrix;\n" +
+// "varying vec4 v_Color;\n" +
+// "void main(){" +
+// "   gl_Position = u_ModelViewMatrix * a_Position;\n" +
+// "   v_Color = vec4(0.2, 0.2, 0.2, 1.0);\n" +
+// "}\n";
+
+// //片元着色器
+// var FSHADER_SOURCE = "" +
+// "#ifdef GL_ES\n" +
+// "precision mediump float;\n" +
+// "#endif\n" +
+// // "varying vec4 v_Color;\n v_Color;" +
+// "void main(){" +
+// "   gl_FragColor = vec4(0, 0, 0, 0.1);\n" +
+// "}\n";
 
 
   //声明js需要的相关变量
@@ -85,6 +96,7 @@ function main() {
       return;
   }
 
+  // 方式一
     // const radius = 8;//半径
     // const SPHERE_DIV = 25;//经纬度格数
     // var xRadian = Math.PI/SPHERE_DIV
@@ -112,7 +124,7 @@ function main() {
     // }
 
 
-
+// 方式二
 //     var SPHERE_DIV = 3;
 //     var position_ = [];
 //     var indices_ = [];
@@ -150,6 +162,7 @@ function main() {
 // }
 
 
+// 方式三
 let r = 8;
 let latitudeBands  = 50;//纬度带
 let longitudeBands = 50;//经度带
@@ -166,16 +179,18 @@ for(var latNum = 0; latNum <= latitudeBands; latNum++){
         var lon = longNum * 2 * Math.PI / longitudeBands - Math.PI;//经度范围从-π到π
         var sinLon = Math.sin(lon);
         var cosLon = Math.cos(lon);
- 
+
+        // 球面坐标 转为 三维坐标
         var x = cosLat * cosLon;
         var y = cosLat * sinLon;
         var z = sinLat;
         var u = (longNum / longitudeBands);
         var v = (latNum / latitudeBands);
- 
+
+        // WebGL使用的是正交右手坐标系
         positions_.push(x);
-        positions_.push(-z);
-        positions_.push(y);
+        positions_.push(y);//-z
+        positions_.push(z);
         textureCoordData.push(u);
         textureCoordData.push(v);
     }
@@ -224,7 +239,7 @@ for(var latNum = 0; latNum < latitudeBands; latNum++){
     
     //对位置的顶点数据进行分配，并开启
     var numComponents = 3;
-    var strideToNextPieceOfData = 0;//fsize*3;
+    var strideToNextPieceOfData = fsize*3;
     var offsetIntoBuffer = 0;
 
     gl.vertexAttribPointer(a_Position, numComponents, gl.FLOAT, false, strideToNextPieceOfData, offsetIntoBuffer);
@@ -252,31 +267,23 @@ for(var latNum = 0; latNum < latitudeBands; latNum++){
 
 
 function draw(gl, indices_length, u_ModelViewMatrix, pos_len) {
-  //设置视角矩阵的相关信息（视点，视线，上方向）
+  //设置视角矩阵的相关信息（视点, 观察点, 上方向）
   var viewMatrix = new Matrix4();
   viewMatrix.setLookAt(12,3,7,-0.5,0,0,0,1,0);
 
+  // var viewMatrix = Matrix4.inverse(cammeraMatrix); 
+  // viewMatrix.inverse(cammeraMatrix);
+
   //设置模型矩阵的相关信息
   var modelMatrix = new Matrix4();
-  // modelMatrix.setRotate(0, 0, 5, 1);
+  modelMatrix.setRotate(-30, 0, -15, 1);
+  
   // modelMatrix.setTranslate(1, 0, 0);
   //console.log(modelMatrix);
 
   //设置透视投影矩阵
   var projMatrix = new Matrix4();
-  //当前lookAt()函数初始视点的高度
-var eyeHight = 2000.0;
-//包围盒范围
-var minX = 399589.072;
-var maxX = 400469.072;
-var minY = 3995118.062;
-var maxY = 3997558.062;
-var minZ = 732;
-var maxZ = 1268;
-//根据视点高度算出setPerspective()函数的合理角度
-var fovy = (maxY - minY) / 2.0 / eyeHight;
-// console.log("fovy", fovy);
-  projMatrix.setPerspective(20, canvas.width/canvas.height, 1, 3000);
+  projMatrix.setPerspective(10, canvas.width/canvas.height, 1, 3000);
 
   //计算出模型视图矩阵 viewMatrix.multiply(modelMatrix)相当于在着色器里面u_ViewMatrix * u_ModelMatrix
   var modeViewMatrix = projMatrix.multiply(viewMatrix.multiply(modelMatrix));
@@ -298,9 +305,9 @@ console.log("u_ModelViewMatrix", u_ModelViewMatrix)
 
   //绘制图形
   
-  // gl.drawArrays(gl.LINE_STRIP,0, pos_len/3);
+  gl.drawArrays(gl.LINE_STRIP,0, pos_len/3);
   console.log("indices length", indices_length)
   // Uint16Array 对应 UNSIGNED_SHORT
-  gl.drawElements(gl.TRIANGLES, indices_length ,gl.UNSIGNED_SHORT, 0);
+  // gl.drawElements(gl.TRIANGLES, indices_length ,gl.UNSIGNED_SHORT, 0);
 
 }
